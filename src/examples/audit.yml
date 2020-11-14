@@ -1,0 +1,22 @@
+description: |
+  An extremely simple example of sending a notification.
+
+usage:
+  version: 2.1
+
+  orbs:
+    notify: hubci/notify@x.y
+
+  workflows:
+    main-wf:
+      jobs:
+        - build
+
+  jobs:
+    build:
+      docker:
+        - image: cimg/base:2023.01
+      steps:
+        - checkout
+        - notify/notify-mattermost:
+            text: "Hi friends!"

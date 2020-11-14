@@ -1,0 +1,11 @@
+version: 2.1
+
+description: |
+  Send notifications from a CircleCI Pipeline to a Mattermost channel.
+
+  Bash is required on the executor image. This orb supports Linux and macOS
+  based images on both the amd64 and arm64 architectures.
+
+display:
+  home_url: "https://circleci.com/developer/orbs/orb/hubci/notify"
+  source_url: "https://github.com/hubci/notify-orb"

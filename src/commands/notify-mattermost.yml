@@ -1,0 +1,52 @@
+description: |
+  Send a message to a Mattermost channel or user (DM).
+parameters:
+  text:
+    description: |
+      Markdown-formatted message to send to Mattermost. To trigger
+      notifications, use @<username>, @channel, and @here like you would in
+      other Mattermost messages.
+    type: string
+  channel:
+    description: |
+      Mattermost webhooks have a default channel. Use this to send the text to
+      a channel other than the default. Use the channel’s name and not the
+      display name, e.g. use town-square, not Town Square. Use an "@" followed
+      by a username to send to a Direct Message.
+    type: string
+    default: ""
+  webhook:
+    description: |
+      The name of the environment variable to use to read in the webhook. The
+      default value should be fine for most people.
+    type: env_var_name
+    default: MM_WEBHOOK
+steps:
+  - run:
+      name: "Check Dependencies"
+      command: |
+        if ! echo $0 | grep --quiet "bash"; then
+          echo "The running shell is not Bash and it is a requirement."
+          exit 2
+        fi
+
+        if ! command -v curl &> /dev/null; then
+          echo "The running shell is not Bash and it is a requirement."
+          exit 3
+        fi
+
+        if [ -z ${<< parameters.webhook >>}]; then
+          echo "The Mattermost webhook needs to be set."
+          exit 4
+        fi
+  - run:
+      name: "Send Message"
+      command: |
+        HTTP_STATUS=$( curl --write-out "%{http_code}\n" --request POST --header "Content-Type: application/json" --data "{\"text\": \"<< parameters.text >>\"}" ${<< parameters.webhook>>} )
+
+        if [ "$HTTP_STATUS" -ne "200" ]; then
+          echo "There was an error sending the webhook. The return code was ${HTTP_STATUS}"
+          exit 5
+        fi
+
+        echo "Message sent."
