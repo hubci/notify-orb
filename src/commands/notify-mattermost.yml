@@ -21,6 +21,15 @@ parameters:
       default value should be fine for most people.
     type: env_var_name
     default: MM_WEBHOOK
+  when:
+    description: |
+      Add the when attribute to a job step to override its default behaviour
+      and selectively run or skip steps depending on the status of the job.
+      If you want to notify Mattermost only on fail, you can change this param, 
+      but it'll be easier to use the 'failed-mattermost' command.
+    type: enum
+    enum: ["on_success", "on_fail", "always"]
+    default: "on_success"
 steps:
   - run:
       name: "Check Dependencies"
@@ -41,6 +50,7 @@ steps:
         fi
   - run:
       name: "Send Message"
+      when: << parameters.when >>
       command: |
         HTTP_STATUS=$( curl --write-out "%{http_code}\n" --request POST --header "Content-Type: application/json" --data "{\"text\": \"<< parameters.text >>\"}" ${<< parameters.webhook>>} )
 

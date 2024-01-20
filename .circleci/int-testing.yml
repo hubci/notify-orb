@@ -13,6 +13,8 @@ workflows:
     jobs:
       - int-test-notify-mattermost:
           filters: *filters
+      - int-test-failed-mattermost:
+          filters: *filters
       - orb-tools/pack:
           filters: *filters
       - orb-tools/publish:
@@ -22,6 +24,7 @@ workflows:
           requires:
             - orb-tools/pack
             - int-test-notify-mattermost
+            - int-test-failed-mattermost
           context: circleci-ctx
           filters:
             branches:
@@ -36,3 +39,10 @@ jobs:
     steps:
       - orb/notify-mattermost:
           text: "This message is from testing the Mattermost CircleCI orb. It can be found here: ${CIRCLE_BUILD_URL}."
+  int-test-failed-mattermost:
+    docker:
+      - image: cimg/base:2023.01
+    steps:
+      # This has to be manually tested. Change to 'exit 1' to test.
+      - run: echo "Simulate a step failure." && exit 0
+      - orb/failed-mattermost
